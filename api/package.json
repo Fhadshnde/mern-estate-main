@@ -1,7 +1,9 @@
 {
   "name": "mern-estate",
   "version": "1.0.0",
-  "engines": "22.x",
+  "engines": {
+    "node": "22.x"
+  },
   "description": "",
   "main": "index.js",
   "type": "module",
