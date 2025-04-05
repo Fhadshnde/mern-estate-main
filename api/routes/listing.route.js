@@ -4,10 +4,11 @@ import { verifyToken } from '../utils/verifyUser.js';
 
 const router = express.Router();
 
-router.post('/create',  createListing);
-router.delete('/delete/:id',  deleteListing);
-router.post('/update/:id',  updateListing);
-router.get('/get/:id', getListing);
-router.get('/get', getListings);
+// ✅ تأمين جميع العمليات التي تتطلب مصادقة المستخدم
+router.post('/create', verifyToken, createListing);
+router.delete('/delete/:id', verifyToken, deleteListing);
+router.put('/update/:id', verifyToken, updateListing);
+router.get('/get/:id', getListing); // هذه يمكن أن تكون عامة
+router.get('/get', getListings); // عرض كل القوائم
 
 export default router;
