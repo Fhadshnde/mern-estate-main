@@ -6,9 +6,9 @@ import authRouter from './routes/auth.route.js';
 import listingRouter from './routes/listing.route.js';
 import cookieParser from 'cookie-parser';
 import path from 'path';
-import cors from 'cors'; // استيراد مكتبة cors
+import cors from 'cors';
 
-dotenv.config()
+dotenv.config();
 
 mongoose
   .connect(process.env.MONGO)
@@ -18,23 +18,26 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
-const __dirname = path.resolve();
 
-const app = express();const corsOptions = {
-  origin: "http://localhost:3000",  
-  methods: "GET,POST",
-  allowedHeaders: "Content-Type,Authorization"
+const __dirname = path.resolve();
+const app = express();
+
+// تكوين CORS أكثر مرونة
+const corsOptions = {
+  origin: true, // السماح بجميع المصادر
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
 
 app.use(cors(corsOptions));
-// تمكين CORS
-app.use(cors());
-
 app.use(express.json());
 app.use(cookieParser());
 
-const server = app.listen(3000, () => {
-  console.log('Server is running on port 3000!');
+const port = process.env.PORT || 3000;
+
+const server = app.listen(port, () => {
+  console.log(`Server is running on port ${port}!`);
 });
 
 // زيادة مهلة الخادم إلى 10 دقائق
@@ -44,7 +47,13 @@ app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/listing', listingRouter);
 
-app.use(express.static(path.join(__dirname, '/client/dist')));
+// في البيئة الإنتاجية، سنخدم ملفات React
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '/client/dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+  });
+}
 
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
